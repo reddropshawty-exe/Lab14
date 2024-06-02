@@ -28,173 +28,52 @@ namespace Lab12_p1
         }
 
 
-        //public static void Menu()
-        //{
-        //    Random rand = new Random();
-        //    LinkList<Car> list1 = new LinkList<Car>();
-        //    LinkList<Car> list2 = new LinkList<Car>();
-        //    bool listExist = false;
-
-
-
-
-        //    while (true)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.DarkRed;
-        //        Console.WriteLine("Меню");
-        //        Console.WriteLine("1. Создать список");
-        //        Console.WriteLine("2. Добавить k элементов в начало списка");
-        //        Console.WriteLine("3. Удалить элемент с заданным значением поля");
-        //        Console.WriteLine("4. Удалить список");
-        //        Console.WriteLine("5. Вывести список");
-        //        Console.WriteLine("6. Клонировать");
-        //        Console.WriteLine("7. Проверить на клонирование.");
-        //        Console.WriteLine("8. Выход");
-        //        Console.WriteLine("Выберите действие: ");
-        //        Console.ResetColor();
-        //        string input = Console.ReadLine();
-
-        //        switch (input)
-        //        {
-        //            case "1":
-        //                {
-        //                    Console.WriteLine("Выберите метод создания списка:\n1)Рандомные объекты\n2)Заполнить вручную");
-        //                    listExist = true;
-        //                    int ans = EntryInt("метод создания списка:", 1, 2);
-        //                    switch (ans)
-        //                    {
-        //                        case 1:
-        //                            {
-        //                                listExist = true;
-
-        //                                int size = EntryInt("размер списка", 1);
-        //                                list1 = LinkList<Car>.ListCreate(size);
-        //                                Console.WriteLine("Созданный список:");
-        //                                list1.PrintList();
-        //                                break;
-        //                            }
-
-        //                        case 2:
-        //                            {
-        //                                int size = EntryInt("размер списка", 1);
-        //                                for (int i = 0; i < size; i++)
-        //                                {
-        //                                    listExist = true;
-        //                                    Console.WriteLine("Что вы хотите добавить?\n1) Автомобиль (базовый)\n2)Кроссовер\n3) Грузовик\n");
-        //                                    ans = EntryInt("вариант", 1, 3);
-        //                                    if(ans == 1)
-        //                                    {
-        //                                        Car added = new Car();
-        //                                        added.Init();
-        //                                        list1.AppEnd(added);
-        //                                    }
-        //                                    if (ans == 2)
-        //                                    {
-        //                                        SUV added = new SUV();
-        //                                        added.Init();
-        //                                        list1.AppEnd(added);
-        //                                    }
-        //                                    if (ans == 3)
-        //                                    {
-        //                                        Truck added = new Truck();
-        //                                        added.Init();
-        //                                        list1.AppEnd(added);
-        //                                    }
-
-        //                                }
-        //                                Console.WriteLine("Созданный список:");
-        //                                list1.PrintList();
-
-
-        //                                break;
-        //                            }
-
-        //                        default:
-        //                            break;
-        //                    }
-        //                    break;
-        //                }
-
-        //            case "2":
-        //                // Добавление элемента в начало списка
-        //                int k=EntryInt("Количество элементов для добавления",1);
-        //                Console.WriteLine("Какие элементы вы хотите добавить?\n1)Случайные элементы 2)Ввести вручную\n ");
-        //                int ansk = EntryInt("Номер варианта", 1, 2, "Такого варианта нет, повторите ввод!");
-        //                listExist = true;
-        //                if (ansk == 1)
-        //                {
-        //                    list1.AppRandK(k);
-        //                }
-        //                else
-        //                {
-
-        //                    list1.AppInpK(k);
-        //                }
-        //                Console.WriteLine("Созданный список:");
-        //                list1.PrintList();
-        //                break;
-        //            case "3":
-        //                Console.WriteLine("Введите имя поля для удаления");
-        //                string propToDel = Console.ReadLine();
-        //                Console.WriteLine("Введите значение поля для удаления");
-        //                string strToDel = Console.ReadLine();
-
-        //                Console.WriteLine("Список после удаления:");
-        //                list1.DelListEl(propToDel, strToDel);
-        //                list1.PrintList();
-        //                break;
-        //            case "4":
-        //                // Удаление
-        //                LinkList<Car>.DelList(list1);
-        //                listExist = false;
-
-        //                break;
-        //            case "5":
-        //                // Вывод списка
-        //                list1.PrintList();
-        //                break;
-        //            case "6":
-        //                // Клон списка
-        //                list2 = list1.DeepCopy();
-        //                Console.WriteLine("Cоздан клон!");
-        //                list2.PrintList();
-        //                break;
-        //            case "7":
-        //                Console.WriteLine("Изменяем первый элемент оригинального списка...");
-        //                if (listExist == false)
-        //                {
-        //                    Console.WriteLine( "Списка не существует!");
-        //                    break;
-        //                }
-        //                list1.beg.Data.RandomInit();
-        //                Console.WriteLine("обновленный список:");    
-        //                list1.PrintList();
-        //                Console.WriteLine("Клон:");
-        //                list2.PrintList();
-        //                break;
-        //            case "8":
-        //                // Выход из программы
-        //                return;
-        //            default:
-        //                Console.WriteLine("Неверный выбор. Попробуйте снова.");
-        //                break;
-        //        }
-        //    }
-        //}
-
-
         static void Main(string[] args)
         {
-            HashMenu();
-            //Menu.BinaryTreeMenu();
+            MyObservableCollection<string, Car> collection1 = new MyObservableCollection<string, Car>(10);
+            MyObservableCollection<string, Car> collection2 = new MyObservableCollection<string, Car>(10);
 
-            //Menu();
-            //Console.ReadKey();
+            Journal journal1 = new Journal();
+            Journal journal2 = new Journal();
+
+            collection1.CollectionCountChanged += journal1.AddEntry;
+            //collection1.CollectionReferenceChanged += journal1.AddEntry;
+            //collection1.CollectionReferenceChanged += journal2.AddEntry;
+            collection2.CollectionReferenceChanged += journal2.AddEntry;
+
+            // Внесение изменений в коллекции
+            Random rnd = new Random();
+            for (int i = 0; i < 5; i++)
+            {
+                Car newCar = new Car();
+                newCar.RandomInit();
+                string key = newCar.GetKey();
+                collection1.Add(key, newCar);
+                collection2.Add(key, newCar);
+            }
 
             
+            if (collection2.Length > 0)
+            {
+                foreach (var item in collection2)
+                {
+                    
+                    Car updatedCar = new Car();
+                    updatedCar.RandomInit();
+                    var key = item.Key;
+                    collection2[key] = updatedCar;
+                }
 
+            }
 
-            // Меню
+            // Вывод данных журналов
+            Console.WriteLine("Journal 1:");
+            journal1.PrintJournal();
+
+            Console.WriteLine("Journal 2:");
+            journal2.PrintJournal();
+
+            Console.ReadKey();
 
         } 
         
@@ -336,6 +215,166 @@ namespace Lab12_p1
                 }
             }
         }
+
+        public static void HashCollectMenu()
+        {
+            Console.WriteLine("Создание коллекции на основе хэш-таблицы:");
+            int length = EntryInt("длину таблицы", 1);
+            double fillRatio = EntryDouble("fillRatio (от 0 до 1)", 0, 1);
+            MyHashTableCollection<string, Car> collection = new MyHashTableCollection<string, Car>(length, fillRatio);
+            Console.WriteLine($"Коллекция создана: длина = {collection.Count}, fillRatio = {fillRatio}");
+
+            while (true)
+            {
+                Console.WriteLine("\nМеню:");
+                Console.WriteLine("1. Добавить элемент");
+                Console.WriteLine("2. Проверить наличие элемента");
+                Console.WriteLine("3. Удалить элемент");
+                Console.WriteLine("4. Вывести коллекцию");
+                Console.WriteLine("5. Выйти");
+                Console.WriteLine("6. Заполнить автоматически");
+                Console.WriteLine("7. Получить значение по ключу");
+                Console.WriteLine("8. Получить все ключи");
+                Console.WriteLine("9. Получить все значения");
+                Console.WriteLine("10. Попробовать получить значение по ключу");
+
+                int choice = EntryInt("номер пункта меню", 1, 10);
+
+                switch (choice)
+                {
+                    case 1:
+                        // Добавление элемента
+                        Console.WriteLine("\nДобавление элемента:");
+                        Car car = new Car();
+                        car.Init();
+                        string key = car.GetKey();
+                        collection.Add(key, car);
+                        Console.WriteLine($"Элемент ({key}, {car.ToString()}) добавлен в коллекцию.");
+                        break;
+
+                    case 2:
+                        // Проверка наличия элемента
+                        Console.WriteLine("\nПроверка наличия элемента:");
+                        string searchKey = EntryString("ключ");
+                        if (collection.ContainsKey(searchKey))
+                        {
+                            Console.WriteLine($"Элемент с ключом {searchKey} найден в коллекции.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Элемент с ключом {searchKey} не найден в коллекции.");
+                        }
+                        break;
+
+                    case 3:
+                        // Удаление элемента
+                        Console.WriteLine("\nУдаление элемента:");
+                        string deleteKey = EntryString("ключ для удаления");
+                        Console.WriteLine("1. Удалить первый элемент с этим ключом\n2. Удалить все элементы с заданным ключом");
+                        int ans = EntryInt("вариант", 1, 2);
+                        if (ans == 1)
+                        {
+                            collection.Remove(deleteKey);
+                            Console.WriteLine($"Элемент с ключом {deleteKey} удален из коллекции.");
+                        }
+                        else
+                        {
+                            while (collection.Remove(deleteKey)) { }
+                            Console.WriteLine("Все элементы с заданным ключом удалены из коллекции.");
+                        }
+                        break;
+
+                    case 4:
+                        // Вывод коллекции
+                        Console.WriteLine("\nКоллекция:");
+                        foreach (var item in collection)
+                        {
+                            Console.WriteLine($"\nКЛЮЧ: {item.Key}\nЗНАЧЕНИЕ: {item.Value}\n");
+                        }
+                        break;
+
+                    case 5:
+                        // Выход из программы
+                        Console.WriteLine("Программа завершена.");
+                        return;
+
+                    case 6:
+                        // Автозаполнение коллекции
+                        Random rnd = new Random();
+                        for (int i = 0; i < length; i++)
+                        {
+                            int type = rnd.Next(0, 3);
+                            Car newCar;
+                            if (type == 0)
+                            {
+                                newCar = new Car();
+                            }
+                            else if (type == 1)
+                            {
+                                newCar = new SUV();
+                            }
+                            else
+                            {
+                                newCar = new Truck();
+                            }
+                            newCar.RandomInit();
+                            string newKey = newCar.GetKey();
+                            collection.Add(newKey, newCar);
+                        }
+                        Console.WriteLine("Коллекция заполнена автоматически.");
+                        break;
+
+                    case 7:
+                        // Получение значения по ключу
+                        Console.WriteLine("\nПолучение значения по ключу:");
+                        string getKey = EntryString("ключ");
+                        try
+                        {
+                            Car getValue = collection[getKey];
+                            Console.WriteLine($"Значение по ключу {getKey}: {getValue}");
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            Console.WriteLine($"Ключ {getKey} не найден в коллекции.");
+                        }
+                        break;
+
+                    case 8:
+                        // Получение всех ключей
+                        Console.WriteLine("\nВсе ключи:");
+                        foreach (var k in collection.Keys)
+                        {
+                            Console.WriteLine(k);
+                        }
+                        break;
+
+                    case 9:
+                        // Получение всех значений
+                        Console.WriteLine("\nВсе значения:");
+                        foreach (var v in collection.Values)
+                        {
+                            Console.WriteLine(v);
+                        }
+                        break;
+
+                    case 10:
+                        // Попробовать получить значение по ключу
+                        Console.WriteLine("\nПопробовать получить значение по ключу:");
+                        string tryGetKey = EntryString("ключ");
+                        if (collection.TryGetValue(tryGetKey, out Car tryGetValue))
+                        {
+                            Console.WriteLine($"Значение по ключу {tryGetKey}: {tryGetValue}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ключ {tryGetKey} не найден в коллекции.");
+                        }
+                        break;
+                }
+            }
+        }
+
+
     }
-    }
+}
 

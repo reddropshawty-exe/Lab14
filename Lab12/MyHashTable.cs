@@ -22,7 +22,7 @@ namespace Lab12Tusk
         public Pair<TK, TV>[] table;
         bool[] flags;
         int count;
-        double fillRatio;
+        public double fillRatio;
         int newElSince = 0;
 
         public int Count => count;
@@ -35,11 +35,6 @@ namespace Lab12Tusk
             this.fillRatio = fillRatio;
         }
 
-        public void AddCount()
-        {
-            count++;
-        }//Добавить 1 к количеству элементов
-
         public IEnumerator<Pair<TK, TV>> GetEnumerator()
         {
             for (int i = 0; i < table.Length; i++)
@@ -50,6 +45,14 @@ namespace Lab12Tusk
                 }
             }
         }
+    
+
+    public void AddCount()
+        {
+            count++;
+        }//Добавить 1 к количеству элементов
+
+
 
 
         public bool Contains(TK data)
@@ -83,7 +86,7 @@ namespace Lab12Tusk
                 }
 
                 count--;
-                Console.WriteLine($"Элемент с ключем{data.ToString()} удален из хэш-таблицы. Он находился на  {FindElem(data)} месте") ;
+                Console.WriteLine($"Элемент с ключем{data.ToString()} удален из хэш-таблицы. Он находился на  {deleted} месте") ;
                 return;
             }
         }
@@ -96,7 +99,7 @@ namespace Lab12Tusk
                 {
                     table[intSearch] = table[i];
                     table[i] = default;
-                    Console.WriteLine($"При удалении элемент {table[i].Key} был перетащен на {FindElem(table[i].Key)}");
+                    Console.WriteLine($"При удалении элемент {table[intSearch].Key} был перетащен на {FindElem(table[intSearch].Key)}");
                     break;
                 } 
             }
@@ -172,7 +175,7 @@ namespace Lab12Tusk
 }
         }
 
-        private int GetIndex(TK key)
+        public int GetIndex(TK key)
         {
             return Math.Abs(key.GetHashCode()) % Capacity;
         }

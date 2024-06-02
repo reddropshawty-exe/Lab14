@@ -149,7 +149,7 @@ public class Car : IInit, IComparable, ICloneable, GetKey
 
     public override string ToString()
     {
-        return $"автомобиль {Color} {Brand} {Year} года";
+        return $"автомобиль {Color} {Brand} {Year} года выпуска стоимостью в {Cost} рублей.\nДорожный просвет: {GroundClearance} мм.\n";
     }
     
     public string GetKey()

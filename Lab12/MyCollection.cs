@@ -1,107 +1,93 @@
-﻿using System;
-using Lab10FINLIB;
-namespace Lab12Tusk
-{
-	public class MyCollection<TK, TV> : IDictionary<TK, TV> where TV : ICloneable, IInit, new()
-    {
-		private HSTable<TK, TV> table;
+﻿//using System;
+//using System.Collections;
+//using Lab10FINLIB;
+//namespace Lab12Tusk
+//{
+//    public class MyHashTableCollection<TK, TV> : ICollection<Pair<TK, TV>>, IEnumerable<Pair<TK, TV>>, IEnumerable where TV : ICloneable, IInit, new()
+//    {
+//        private HSTable<TK, TV> hashTable;
 
-        public MyCollection()
-        {
-            table = new HSTable<TK, TV>();
-        }
+//        public MyHashTableCollection(int length = 10, double fillRatio = 0.72)
+//        {
+//            hashTable = new HSTable<TK, TV>(length, fillRatio);
+//        }
 
+//        public int Count => hashTable.Count;
+//        public int Capacity => hashTable.Capacity;
+//        public bool IsReadOnly => false;
 
+//        public void Add(Pair<TK, TV> item)
+//        {
+//            hashTable.AddItem(item.Key, item.Value);
+//        }
 
-        public ICollection<TK> Keys => throw new NotImplementedException();
+//        //очищаем - делаем хэш таблицу пустой, заменяя на новую
+//        public void Clear()
+//        {
+//            hashTable = new HSTable<TK, TV>(hashTable.Capacity, hashTable.fillRatio);
+//        }
 
-        public ICollection<TV> Values => throw new NotImplementedException();
+//        //вызываем идентичную функцию для пары
+//        public bool Contains(Pair<TK, TV> item)
+//        {
+//            return hashTable.Contains(item.Key);
+//        }
 
-        public int Count => table.Count;
-
-        public bool IsReadOnly => throw new NotImplementedException();
-
-        public TV this[TK key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public void Add(TK key, TV value)
-        {
-            table.AddItem(key, value);
-        }
-
-        public void Add(KeyValuePair<TK, TV> item)
-        {
-            Add(item.Key, item.Value);
-        }
-
-        public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
-        {
-            foreach (var pair in table)
-            {
-                yield return new KeyValuePair<TK, TV>(pair.Key, pair.Value);
-            }
-        }
-
-        public void Clear()
-        {
-            table = new HSTable<TK, TV>();
-        }
-
-        public bool Contains(KeyValuePair<TK, TV> item)
-        {
-            return ContainsKey(item.Key);
-        }
-
-        public bool ContainsKey(TK key)
-        {
-            return table.Contains(key);
-        }
-
-        public void CopyTo(KeyValuePair<TK, TV>[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
-
- 
-        
-
-        public bool Remove(TK key)
-        {
-            if (!ContainsKey(key))
-            {
-                return false;
-            }
-            table.DelEl(key);
-            return true;
-        }
-
-        public bool Remove(KeyValuePair<TK, TV> item)
-        {
-            if (!Contains(item))
-            {
-                return false;
-            }
-            return Remove(item.Key);
-        }
-
-        public bool TryGetValue(TK key, out TV value)
-        {
-            int index = table.FindElem(key);
-            if (index != -1)
-            {
-                value = table.table[index].Value;
-                return true;
-            }
-            value = default;
-            return false;
-        }
+//        //вызываем идентичную функцию для ключа
+//        public bool Contains(TK item)
+//        {
+//            return hashTable.Contains(item);
+//        }
 
 
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
+//        public void CopyTo(Pair<TK, TV>[] array, int arrayIndex)
+//        {
+//            if (array == null) throw new ArgumentNullException(nameof(array));
+//            if (arrayIndex < 0 || arrayIndex > array.Length) throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+//            if (array.Length - arrayIndex < Count) throw new ArgumentException("The number of elements in the source array is greater than the available space from arrayIndex to the end of the destination array.");
 
- 
+//            int copied = 0;
+//            foreach (var pair in hashTable)
+//            {
+//                array[arrayIndex + copied] = pair;
+//                copied++;
+//            }
+//        }
+
+//        // дублируеем метод удаления из хэш таблицы, для пары элементов.
+//        public bool Remove(Pair<TK, TV> item)
+//        {
+//            if (hashTable.Contains(item.Key))
+//            {
+//                hashTable.DelEl(item.Key);
+//                return true;
+//            }
+//            return false;
+//        }
+
+//        // дублируеем метод удаления из хэш таблицы, для значения ключа
+//        public bool Remove(TK item)
+//        {
+//            if (hashTable.Contains(item))
+//            {
+//                hashTable.DelEl(item);
+//                return true;
+//            }
+//            return false;
+//        }
+
+
+//        public IEnumerator<Pair<TK, TV>> GetEnumerator()
+//        {
+//            return hashTable.GetEnumerator();
+//        }
+
+//        IEnumerator IEnumerable.GetEnumerator()
+//        {
+//            return GetEnumerator();
+//        }
+
+
+//    }
+//}

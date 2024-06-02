@@ -51,7 +51,7 @@ public class SUV : PassengerCar, IInit, GetKey
 
     public override string ToString()
     {
-        return $"Внедорожник {Color} {Brand} {Year} года";
+        return $"Внедорожник {Color} {Brand} {Year} года выпуска стоимостью в {Cost} рублей.\nДорожный просвет: {GroundClearance} мм. Тип бездорожья: {OffroadType}, Привод: {GetWd(this)} Количество мест: {Seats}. Макс. скорость: {MaxSpeed} км/ч.\n";
     }
 
     public string GetKey()
