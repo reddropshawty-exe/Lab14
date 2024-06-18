@@ -7,6 +7,8 @@ namespace Lab12Tusk
     {
         private readonly HSTable<TK, TV> hashtable;
 
+
+
         public MyHashTableCollection(int length = 10, double fillRatio = 0.72)
         {
             hashtable = new HSTable<TK, TV>(length, fillRatio);

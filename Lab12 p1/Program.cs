@@ -1,16 +1,32 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Lab10FINLIB;
 using Lab12Tusk;
+using Lab14_;
+
 namespace Lab12_p1
 {
-
-
-
-
-
     class Program
     {
+        static public Car CreateRandomCar()
+        {
+            Random rnd = new Random();
+            int carType = rnd.Next(4); // случайное число от 0 до 3
+            switch (carType)
+            {
+                case 0:
+                    return new PassengerCar();
+                case 1:
+                    return new SUV();
+                case 2:
+                    return new Truck();
+                default:
+                    return new Car();
+            }
+        }
+
         static int EntryInt(string intElement = "число", int min = -100, int max = 100, string errorMessage = "Повторите ввод!")
         {
             while (true)
@@ -27,354 +43,316 @@ namespace Lab12_p1
             }
         }
 
+        // GETKEY 
+        static public void GetKeyTruckLinq(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = from item in MyCollect where item.Value is Truck select new { Brand = item.Value.Brand, Year = item.Value.Year, Price = item.Value.Cost };
+            Console.WriteLine("Все грузовики в коллекции:");
+            foreach (var item in res)
+            {
+                Console.WriteLine($"Грузовик {item.Brand} {item.Year} года за {item.Price} рублей");
+            }
+        }
+
+        static public void GetKeyTruckUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = MyCollect
+                .Where(item => item.Value is Truck)
+                .Select(item => new { Brand = item.Value.Brand, Year = item.Value.Year, Price = item.Value.Cost });
+
+            Console.WriteLine("Все грузовики в коллекции:");
+            foreach (var item in res)
+            {
+                Console.WriteLine($"Грузовик {item.Brand} {item.Year} года за {item.Price} рублей");
+            }
+        }
+
+        // AVG
+        static public void GetAvgPriceUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = MyCollect.Average(car => car.Value.Cost);
+            Console.WriteLine($"Средняя цена авто в коллекции: {res}");
+        }
+
+        static public void GetAvgPriceLinq(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = (from car in MyCollect select car.Value.Cost).Average();
+            Console.WriteLine($"Средняя цена авто в коллекции: {res}");
+        }
+
+        // COUNT
+        static public void GetCountFWDUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = MyCollect.Count(x => x.Value is SUV suv && suv.Fwd);
+            Console.WriteLine($"Количество полноприводных внедорожников: {res}");
+        }
+
+        static public void GetCountFWDLinq(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = (from item in MyCollect where item.Value is SUV suv && suv.Fwd select item).Count();
+            Console.WriteLine($"Количество полноприводных внедорожников: {res}");
+        }
+
+        // ГРУППИРОВКА ПО ГРУППАМ
+        public static void GroupByBrandLinq(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = from item in MyCollect group item by item.Value.Brand;
+
+            foreach (var group in res)
+            {
+                Console.WriteLine($"Марка: {group.Key}");
+                foreach (var car in group)
+                {
+                    Console.WriteLine($"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей");
+                }
+            }
+        }
+
+        public static void GroupByBrandUsingMethods(MyHashTableCollection<string, Car> MyCollect)
+        {
+            Console.WriteLine("Текущая коллекция:");
+            PrintCollection(MyCollect);
+
+            var res = MyCollect
+                .GroupBy(item => item.Value.Brand);
+
+            foreach (var group in res)
+            {
+                Console.WriteLine($"Марка: {group.Key}");
+                foreach (var car in group)
+                {
+                    Console.WriteLine($"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей");
+                }
+            }
+        }
+
+        static void PrintCollection(MyHashTableCollection<string, Car> MyCollect)
+        {
+            foreach (var item in MyCollect)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value.Brand} {item.Value.Year} за {item.Value.Cost} рублей");
+            }
+        }
 
         static void Main(string[] args)
         {
-            MyObservableCollection<string, Car> collection1 = new MyObservableCollection<string, Car>(10);
-            MyObservableCollection<string, Car> collection2 = new MyObservableCollection<string, Car>(10);
-
-            Journal journal1 = new Journal();
-            Journal journal2 = new Journal();
-
-            collection1.CollectionCountChanged += journal1.AddEntry;
-            //collection1.CollectionReferenceChanged += journal1.AddEntry;
-            //collection1.CollectionReferenceChanged += journal2.AddEntry;
-            collection2.CollectionReferenceChanged += journal2.AddEntry;
-
-            // Внесение изменений в коллекции
-            Random rnd = new Random();
-            for (int i = 0; i < 5; i++)
+            var fabric = new CarFabric();
+            var otherFabric = new CarFabric();
+            var showroomList = new List<Showroom>
             {
-                Car newCar = new Car();
-                newCar.RandomInit();
-                string key = newCar.GetKey();
-                collection1.Add(key, newCar);
-                collection2.Add(key, newCar);
+                new Showroom("Volkswagen"),
+                new Showroom("Skoda"),
+                new Showroom("Audi"),
+                new Showroom("Porshe"),
+                new Showroom("Bugatti"),
+                new Showroom("Lamborgini")
+            };
+
+            var myHashTable = new MyHashTableCollection<string, Car>();
+            for (int i = 0; i < 10; i++)
+            {
+                Car added = CreateRandomCar();
+                myHashTable.Add(added.ToString(), added);
             }
 
-            
-            if (collection2.Length > 0)
-            {
-                foreach (var item in collection2)
-                {
-                    
-                    Car updatedCar = new Car();
-                    updatedCar.RandomInit();
-                    var key = item.Key;
-                    collection2[key] = updatedCar;
-                }
-
-            }
-
-            // Вывод данных журналов
-            Console.WriteLine("Journal 1:");
-            journal1.PrintJournal();
-
-            Console.WriteLine("Journal 2:");
-            journal2.PrintJournal();
-
-            Console.ReadKey();
-
-        } 
-        
-        static double EntryDouble(string doubleElement = "число", double min = double.MinValue, double max = double.MaxValue, string errorMessage = "Повторите ввод!")
-        {
             while (true)
             {
-                Console.WriteLine($"\nВведите {doubleElement}!");
-                string s = Console.ReadLine();
-                double d;
-                bool res = double.TryParse(s, out d);
-                if (res && d >= min && d <= max)
+                Console.WriteLine("Выберите подменю:");
+                Console.WriteLine("1. Первая часть");
+                Console.WriteLine("2. Вторая часть");
+                Console.WriteLine("0. Выход");
+                int choice = int.Parse(Console.ReadLine());
+
+                if (choice == 0)
                 {
-                    return d;
+                    break;
                 }
-                Console.WriteLine(errorMessage);
+                else if (choice == 1)
+                {
+                    ShowCarFabricMenu(fabric, otherFabric, showroomList);
+                }
+                else if (choice == 2)
+                {
+                    ShowHashTableMenu(myHashTable);
+                }
             }
         }
 
-        static string EntryString(string message = "строку")
+        static void ShowCarFabricMenu(CarFabric fabric, CarFabric otherFabric, List<Showroom> showroomList)
         {
-            Console.WriteLine($"\nВведите {message}!");
-            return Console.ReadLine();
-        }
-
-
-        public static void HashMenu()
-        {
-            Console.WriteLine("Создание хэш-таблицы:");
-            int length = EntryInt("длину таблицы", 1);
-            double fillRatio = EntryDouble("fillRatio (от 0 до 1)", 0, 1);
-            HSTable<string, Car> hashtable = new HSTable<string, Car>(length, fillRatio);
-            Console.WriteLine($"Хэш-таблица создана: длина = {hashtable.Capacity}");
             while (true)
             {
-                Console.WriteLine("\nМеню:");
-                Console.WriteLine("1. Добавить элемент");
-                Console.WriteLine("2. Проверить наличие элемента");
-                Console.WriteLine("3. Удалить элемент");
-                Console.WriteLine("4. Вывести хэш-таблицу");
-                Console.WriteLine("5. Выйти");
-                Console.WriteLine("6. заполнить автоматически");
+                Console.WriteLine("\nCarFabric меню:");
+                Console.WriteLine("0. Вывести текущую коллекцию");
+                Console.WriteLine("1. Найти премиум авто");
+                Console.WriteLine("2. Найти эксклюзивные авто");
+                Console.WriteLine("3. Средняя цена грузовиков");
+                Console.WriteLine("4. Получить код авто");
+                Console.WriteLine("5. Найти автосалоны");
+                Console.WriteLine("6. Группировка по марке");
+                Console.WriteLine("7. Назад");
+                int choice = EntryInt("Пункт", 0, 7);
 
-                int choice = EntryInt("номер пункта меню", 1, 6);
+                if (choice == 7)
+                {
+                    break;
+                }
+
+                if (choice == 0)
+                {
+                    Console.WriteLine("Текущая коллекция 1:");
+                    fabric.PrintFab();
+                    Console.WriteLine("Текущая коллекция 2:");
+                    otherFabric.PrintFab();
+                    continue;
+                }
+
+                Console.WriteLine("Выберите метод:");
+                Console.WriteLine("1. LINQ");
+                Console.WriteLine("2. Методы расширения");
+                int methodChoice = int.Parse(Console.ReadLine());
 
                 switch (choice)
                 {
                     case 1:
-                        // Добавление элемента
-                        Console.WriteLine("\nДобавление элемента:");
-                        Car added = new Car();
-                        added.Init();
-                        string key = added.GetKey();
-                        Car value = added;
-                        hashtable.AddItem(key, value);
-                        Console.WriteLine($"Элемент ({key}, {value.ToString()}) добавлен в хэш-таблицу.");
+                        if (methodChoice == 1)
+                            fabric.FindPremiumLinq();
+                        else
+                            fabric.FindPremiumUsingExtensions();
                         break;
-
                     case 2:
-                        // Проверка наличия элемента
-                        Console.WriteLine("\nПроверка наличия элемента:");
-                        string searchKey = EntryString("ключ");
-                        if (hashtable.Contains(searchKey))
+                        if (methodChoice == 1)
                         {
-                            Console.WriteLine($"Элемент с ключом {searchKey} найден в хэш-таблице.");
+                            Console.WriteLine("Текущая коллекция 1:");
+                            fabric.PrintFab();
+                            Console.WriteLine("Текущая коллекция 2:");
+                            otherFabric.PrintFab();
+                            fabric.FindExclusiveLinq(otherFabric);
                         }
                         else
                         {
-                            Console.WriteLine($"Элемент с ключом {searchKey} не найден в хэш-таблице.");
+                            Console.WriteLine("Текущая коллекция 1:");
+                            fabric.PrintFab();
+                            Console.WriteLine("Текущая коллекция 2:");
+                            otherFabric.PrintFab();
+                            fabric.FindExclusiveUsingExtensions(otherFabric);
                         }
                         break;
-
                     case 3:
-                        // Удаление элемента
-                        Console.WriteLine("\nУдаление элемента:");
-
-                        string deleteKey = EntryString("ключ для удаления");
-                        Console.WriteLine("1.Удалить первый элемент с этим ключом\n2.Удалить все элементы с заданным ключом\n");
-                        int ans = EntryInt("вариант", 1, 2);
-                        if (ans == 1)
+                        if (methodChoice == 1)
+                            fabric.GetAverageTruckPriceLinq();
+                        else
+                            fabric.GetAverageTruckPriceUsingExtensions();
+                        break;
+                    case 4:
+                        if (methodChoice == 1)
+                            fabric.GetCodeLinq();
+                        else
+                            fabric.GetCodeUsingExtensions();
+                        break;
+                    case 5:
+                        if (methodChoice == 1)
                         {
-                            hashtable.DelEl(deleteKey);
-
+                            fabric.GetShowroomsLinq(showroomList);
+                            Console.WriteLine("Автосалоны:");
+                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.carClass}-класса, по продаже {s.Brand} в городе {s.City}."));
                         }
                         else
                         {
-                            hashtable.DelAllEl(deleteKey);
-
+                            fabric.GetShowroomsUsingExtensions(showroomList);
+                            Console.WriteLine("Автосалоны:");
+                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.carClass}-класса, по продаже {s.Brand} в городе {s.City}."));
                         }
                         break;
-
-                    case 4:
-                        // Вывод хэш-таблицы
-                        Console.WriteLine("\nХэш-таблица:");
-                        hashtable.PrintTable();
-                        break;
-
-                    case 5:
-                        // Выход из программы
-                        Console.WriteLine("Программа завершена.");
-                        return;
-
                     case 6:
-                        for (int i = 0; i < hashtable.table.Length; i++)
-                        {
-                            if (hashtable.table[i] == null)
-                            {
-                                Random rnd = new Random();
-                                int type = rnd.Next(0, 3);
-                                Car addedCar;
-                                Pair<string, Car> addedItem;
-                                if (type == 1)
-                                {
-                                    addedCar = new Car();
-                                    addedCar.RandomInit();
-                                    addedItem = new Pair<string, Car>(addedCar.GetKey(), addedCar);
-                                }
-
-                                if (type == 2)
-                                {
-                                    SUV addedSUV = new SUV();
-                                    addedSUV.RandomInit();
-                                    addedItem = new Pair<string, Car>(addedSUV.GetKey(), addedSUV);
-                                }
-
-                                else
-                                {
-                                    Truck addedTruck = new Truck();
-                                    addedTruck.RandomInit();
-                                    addedItem = new Pair<string, Car>(addedTruck.GetKey(), addedTruck);
-                                }
-
-                                hashtable.table[i] = addedItem;
-                                hashtable.AddCount();
-                            }
-                        }
-                        Console.WriteLine("Таблица заполне!");
+                        if (methodChoice == 1)
+                            fabric.GroupByBrandLinq();
+                        else
+                            fabric.GroupByBrand();
                         break;
                 }
             }
         }
 
-        public static void HashCollectMenu()
+        static void ShowHashTableMenu(MyHashTableCollection<string, Car> myHashTable)
         {
-            Console.WriteLine("Создание коллекции на основе хэш-таблицы:");
-            int length = EntryInt("длину таблицы", 1);
-            double fillRatio = EntryDouble("fillRatio (от 0 до 1)", 0, 1);
-            MyHashTableCollection<string, Car> collection = new MyHashTableCollection<string, Car>(length, fillRatio);
-            Console.WriteLine($"Коллекция создана: длина = {collection.Count}, fillRatio = {fillRatio}");
-
             while (true)
             {
-                Console.WriteLine("\nМеню:");
-                Console.WriteLine("1. Добавить элемент");
-                Console.WriteLine("2. Проверить наличие элемента");
-                Console.WriteLine("3. Удалить элемент");
-                Console.WriteLine("4. Вывести коллекцию");
-                Console.WriteLine("5. Выйти");
-                Console.WriteLine("6. Заполнить автоматически");
-                Console.WriteLine("7. Получить значение по ключу");
-                Console.WriteLine("8. Получить все ключи");
-                Console.WriteLine("9. Получить все значения");
-                Console.WriteLine("10. Попробовать получить значение по ключу");
+                Console.WriteLine("\nMyHashTableCollection меню:");
+                Console.WriteLine("0. Вывести текущую коллекцию");
+                Console.WriteLine("1. Найти грузовики");
+                Console.WriteLine("2. Средняя цена авто");
+                Console.WriteLine("3. Количество полноприводных внедорожников");
+                Console.WriteLine("4. Группировка по марке");
+                Console.WriteLine("5. Назад");
+                int choice = EntryInt("Пункт", 0, 5);
 
-                int choice = EntryInt("номер пункта меню", 1, 10);
+                if (choice == 5)
+                {
+                    break;
+                }
+
+                if (choice == 0)
+                {
+                    Console.WriteLine("Текущая коллекция:");
+                    PrintCollection(myHashTable);
+                    continue;
+                }
+
+                Console.WriteLine("Выберите метод:");
+                Console.WriteLine("1. LINQ");
+                Console.WriteLine("2. Методы расширения");
+                int methodChoice = EntryInt("Пункт", 1, 2);
 
                 switch (choice)
                 {
                     case 1:
-                        // Добавление элемента
-                        Console.WriteLine("\nДобавление элемента:");
-                        Car car = new Car();
-                        car.Init();
-                        string key = car.GetKey();
-                        collection.Add(key, car);
-                        Console.WriteLine($"Элемент ({key}, {car.ToString()}) добавлен в коллекцию.");
+                        if (methodChoice == 1)
+                            GetKeyTruckLinq(myHashTable);
+                        else
+                            GetKeyTruckUsingExtensions(myHashTable);
                         break;
-
                     case 2:
-                        // Проверка наличия элемента
-                        Console.WriteLine("\nПроверка наличия элемента:");
-                        string searchKey = EntryString("ключ");
-                        if (collection.ContainsKey(searchKey))
-                        {
-                            Console.WriteLine($"Элемент с ключом {searchKey} найден в коллекции.");
-                        }
+                        if (methodChoice == 1)
+                            GetAvgPriceLinq(myHashTable);
                         else
-                        {
-                            Console.WriteLine($"Элемент с ключом {searchKey} не найден в коллекции.");
-                        }
+                            GetAvgPriceUsingExtensions(myHashTable);
                         break;
-
                     case 3:
-                        // Удаление элемента
-                        Console.WriteLine("\nУдаление элемента:");
-                        string deleteKey = EntryString("ключ для удаления");
-                        Console.WriteLine("1. Удалить первый элемент с этим ключом\n2. Удалить все элементы с заданным ключом");
-                        int ans = EntryInt("вариант", 1, 2);
-                        if (ans == 1)
-                        {
-                            collection.Remove(deleteKey);
-                            Console.WriteLine($"Элемент с ключом {deleteKey} удален из коллекции.");
-                        }
+                        if (methodChoice == 1)
+                            GetCountFWDLinq(myHashTable);
                         else
-                        {
-                            while (collection.Remove(deleteKey)) { }
-                            Console.WriteLine("Все элементы с заданным ключом удалены из коллекции.");
-                        }
+                            GetCountFWDUsingExtensions(myHashTable);
                         break;
-
                     case 4:
-                        // Вывод коллекции
-                        Console.WriteLine("\nКоллекция:");
-                        foreach (var item in collection)
-                        {
-                            Console.WriteLine($"\nКЛЮЧ: {item.Key}\nЗНАЧЕНИЕ: {item.Value}\n");
-                        }
-                        break;
-
-                    case 5:
-                        // Выход из программы
-                        Console.WriteLine("Программа завершена.");
-                        return;
-
-                    case 6:
-                        // Автозаполнение коллекции
-                        Random rnd = new Random();
-                        for (int i = 0; i < length; i++)
-                        {
-                            int type = rnd.Next(0, 3);
-                            Car newCar;
-                            if (type == 0)
-                            {
-                                newCar = new Car();
-                            }
-                            else if (type == 1)
-                            {
-                                newCar = new SUV();
-                            }
-                            else
-                            {
-                                newCar = new Truck();
-                            }
-                            newCar.RandomInit();
-                            string newKey = newCar.GetKey();
-                            collection.Add(newKey, newCar);
-                        }
-                        Console.WriteLine("Коллекция заполнена автоматически.");
-                        break;
-
-                    case 7:
-                        // Получение значения по ключу
-                        Console.WriteLine("\nПолучение значения по ключу:");
-                        string getKey = EntryString("ключ");
-                        try
-                        {
-                            Car getValue = collection[getKey];
-                            Console.WriteLine($"Значение по ключу {getKey}: {getValue}");
-                        }
-                        catch (KeyNotFoundException)
-                        {
-                            Console.WriteLine($"Ключ {getKey} не найден в коллекции.");
-                        }
-                        break;
-
-                    case 8:
-                        // Получение всех ключей
-                        Console.WriteLine("\nВсе ключи:");
-                        foreach (var k in collection.Keys)
-                        {
-                            Console.WriteLine(k);
-                        }
-                        break;
-
-                    case 9:
-                        // Получение всех значений
-                        Console.WriteLine("\nВсе значения:");
-                        foreach (var v in collection.Values)
-                        {
-                            Console.WriteLine(v);
-                        }
-                        break;
-
-                    case 10:
-                        // Попробовать получить значение по ключу
-                        Console.WriteLine("\nПопробовать получить значение по ключу:");
-                        string tryGetKey = EntryString("ключ");
-                        if (collection.TryGetValue(tryGetKey, out Car tryGetValue))
-                        {
-                            Console.WriteLine($"Значение по ключу {tryGetKey}: {tryGetValue}");
-                        }
+                        if (methodChoice == 1)
+                            GroupByBrandLinq(myHashTable);
                         else
-                        {
-                            Console.WriteLine($"Ключ {tryGetKey} не найден в коллекции.");
-                        }
+                            GroupByBrandUsingMethods(myHashTable);
                         break;
                 }
             }
         }
-
-
     }
 }
-

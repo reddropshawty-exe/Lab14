@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using Lab10FINLIB;
+using Lab12Tusk;
+using System.Linq;
 
 namespace Lab12Tusk
 {
-
     // Класс для передачи данных события
     public class CollectionHandlerEventArgs : EventArgs
     {
+        public string Name { get; }
         public object Key { get; }
         public object Value { get; }
         public string Action { get; }
 
-        public CollectionHandlerEventArgs(object key, object value, string action)
+        public CollectionHandlerEventArgs(string name, object key, object value, string action)
         {
+            Name = name;
             Key = key;
             Value = value;
             Action = action;
@@ -25,43 +28,42 @@ namespace Lab12Tusk
         }
     }
 
-
-
-    //Создаем коллекцию
+    // Создаем коллекцию
     public class MyObservableCollection<TK, TV> : MyHashTableCollection<TK, TV> where TV : ICloneable, IInit, new()
     {
-        //список ключей 
+        // Список ключей 
         private readonly List<TK> keys;
 
         public string name;
 
-        //конструктор
-        public MyObservableCollection(int length = 10, double fillRatio = 0.72) : base(length, fillRatio)
+
+
+        // Конструктор
+        public MyObservableCollection(string collectName, int length = 10, double fillRatio = 0.72) : base(length, fillRatio)
         {
+            name = collectName;
             keys = new List<TK>();
         }
 
         // Делегат и события для уведомления об изменениях в коллекции
         public delegate void CollectionChangeHandler(object source, CollectionHandlerEventArgs args);
 
-        // События для изменения количества и ссылок в коллекции, используют одинаковый тип делегата принимающий одинаковые аргументы
+        // События для изменения количества и ссылок в коллекции, используют одинаковый тип делегата, принимающий одинаковые аргументы
         public event CollectionChangeHandler CollectionCountChanged;
         public event CollectionChangeHandler CollectionReferenceChanged;
 
         // Метод вызывающий событие
-        protected void OnCollectionCountChanged(TK key, TV value, string action)
+        protected void OnCollectionCountChanged(string name, TK key, TV value, string action)
         {
-            //запускаем все делегированные методы
-            CollectionCountChanged?.Invoke(this, new CollectionHandlerEventArgs(key, value, action));
+            // Запускаем все делегированные методы
+            CollectionCountChanged?.Invoke(this, new CollectionHandlerEventArgs(name, key, value, action));
         }
 
         // Метод для уведомления подписчиков о изменении ссылки в коллекции
-        protected void OnCollectionReferenceChanged(TK key, TV value, string action)
+        protected void OnCollectionReferenceChanged(string name, TK key, TV value, string action)
         {
-            CollectionReferenceChanged?.Invoke(this, new CollectionHandlerEventArgs(key, value, action));
+            CollectionReferenceChanged?.Invoke(this, new CollectionHandlerEventArgs(name, key, value, action));
         }
-
-
 
         // Добавление элемента в коллекцию вызывает событие
         public new void Add(TK key, TV value)
@@ -71,7 +73,7 @@ namespace Lab12Tusk
             {
                 keys.Add(key);
             }
-            OnCollectionCountChanged(key, value, "add");
+            OnCollectionCountChanged(name, key, value, "добавлен");
         }
 
         // Удаление элемента из коллекции
@@ -83,7 +85,7 @@ namespace Lab12Tusk
                 if (result)
                 {
                     keys.Remove(key);
-                    OnCollectionCountChanged(key, value, "remove");
+                    OnCollectionCountChanged(name, key, value, "удален");
                 }
                 return result;
             }
@@ -95,7 +97,7 @@ namespace Lab12Tusk
         {
             base.Clear();
             keys.Clear();
-            OnCollectionCountChanged(default, default, "clear");
+            OnCollectionCountChanged(name, default, default, "очищена");
         }
 
         // Итератор для доступа к элементам коллекции
@@ -114,17 +116,13 @@ namespace Lab12Tusk
             set
             {
                 base[key] = value;
-                OnCollectionReferenceChanged(key, value, "update");
+                OnCollectionReferenceChanged(name, key, value, "обновлен");
             }
         }
 
         // Свойство Length для получения текущего количества элементов коллекции
         public int Length => keys.Count;
     }
-
-
-
-
 
     public class Journal
     {
@@ -152,15 +150,14 @@ namespace Lab12Tusk
 
         public JournalEntry(object source, CollectionHandlerEventArgs args)
         {
-            Name = nameof(source).ToString();
+            Name = args.Name;
             Type = args.Action;
             Data = $"Key: {args.Key}, Value: {args.Value}";
         }
 
         public override string ToString()
         {
-            return $"Collection {Name} changed: {Type} - {Data}";
+            return $"В коллекции {Name} изменение: {Type} - {Data}";
         }
     }
 }
-    
