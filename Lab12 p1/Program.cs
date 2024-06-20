@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Lab10FINLIB;
@@ -44,107 +43,84 @@ namespace Lab12_p1
         }
 
         // GETKEY 
-        static public void GetKeyTruckLinq(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetKeyTruckLinq(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = from item in MyCollect where item.Value is Truck select new { Brand = item.Value.Brand, Year = item.Value.Year, Price = item.Value.Cost };
-            Console.WriteLine("Все грузовики в коллекции:");
+            string result = "Все грузовики в коллекции:\n";
             foreach (var item in res)
             {
-                Console.WriteLine($"Грузовик {item.Brand} {item.Year} года за {item.Price} рублей");
+                result += $"Грузовик {item.Brand} {item.Year} года за {item.Price} рублей\n";
             }
+            return result;
         }
 
-        static public void GetKeyTruckUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetKeyTruckUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = MyCollect
                 .Where(item => item.Value is Truck)
-                .Select(item => new { Brand = item.Value.Brand, Year = item.Value.Year, Price = item.Value.Cost });
+                .Select(item => $"Грузовик {item.Value.Brand} {item.Value.Year} года за {item.Value.Cost} рублей");
 
-            Console.WriteLine("Все грузовики в коллекции:");
-            foreach (var item in res)
-            {
-                Console.WriteLine($"Грузовик {item.Brand} {item.Year} года за {item.Price} рублей");
-            }
+            return string.Join("\n", res);
         }
 
         // AVG
-        static public void GetAvgPriceUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetAvgPriceUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = MyCollect.Average(car => car.Value.Cost);
-            Console.WriteLine($"Средняя цена авто в коллекции: {res}");
+            return $"Средняя цена авто в коллекции: {res}";
         }
 
-        static public void GetAvgPriceLinq(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetAvgPriceLinq(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = (from car in MyCollect select car.Value.Cost).Average();
-            Console.WriteLine($"Средняя цена авто в коллекции: {res}");
+            return $"Средняя цена авто в коллекции: {res}";
         }
 
         // COUNT
-        static public void GetCountFWDUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetCountFWDUsingExtensions(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = MyCollect.Count(x => x.Value is SUV suv && suv.Fwd);
-            Console.WriteLine($"Количество полноприводных внедорожников: {res}");
+            return $"Количество полноприводных внедорожников: {res}";
         }
 
-        static public void GetCountFWDLinq(MyHashTableCollection<string, Car> MyCollect)
+        static public string GetCountFWDLinq(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = (from item in MyCollect where item.Value is SUV suv && suv.Fwd select item).Count();
-            Console.WriteLine($"Количество полноприводных внедорожников: {res}");
+            return $"Количество полноприводных внедорожников: {res}";
         }
 
         // ГРУППИРОВКА ПО ГРУППАМ
-        public static void GroupByBrandLinq(MyHashTableCollection<string, Car> MyCollect)
+        public static string GroupByBrandLinq(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = from item in MyCollect group item by item.Value.Brand;
 
+            string result = "";
             foreach (var group in res)
             {
-                Console.WriteLine($"Марка: {group.Key}");
+                result += $"Марка: {group.Key}\n";
                 foreach (var car in group)
                 {
-                    Console.WriteLine($"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей");
+                    result += $"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей\n";
                 }
             }
+            return result;
         }
 
-        public static void GroupByBrandUsingMethods(MyHashTableCollection<string, Car> MyCollect)
+        public static string GroupByBrandUsingMethods(MyHashTableCollection<string, Car> MyCollect)
         {
-            Console.WriteLine("Текущая коллекция:");
-            PrintCollection(MyCollect);
-
             var res = MyCollect
                 .GroupBy(item => item.Value.Brand);
 
+            string result = "";
             foreach (var group in res)
             {
-                Console.WriteLine($"Марка: {group.Key}");
+                result += $"Марка: {group.Key}\n";
                 foreach (var car in group)
                 {
-                    Console.WriteLine($"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей");
+                    result += $"\t{car.Value.Brand} {car.Value.Year} за {car.Value.Cost} рублей\n";
                 }
             }
+            return result;
         }
 
         static void PrintCollection(MyHashTableCollection<string, Car> MyCollect)
@@ -219,15 +195,6 @@ namespace Lab12_p1
                     break;
                 }
 
-                if (choice == 0)
-                {
-                    Console.WriteLine("Текущая коллекция 1:");
-                    fabric.PrintFab();
-                    Console.WriteLine("Текущая коллекция 2:");
-                    otherFabric.PrintFab();
-                    continue;
-                }
-
                 Console.WriteLine("Выберите метод:");
                 Console.WriteLine("1. LINQ");
                 Console.WriteLine("2. Методы расширения");
@@ -235,61 +202,55 @@ namespace Lab12_p1
 
                 switch (choice)
                 {
+                    case 0:
+                        Console.WriteLine("Текущая коллекция 1:");
+                        Console.WriteLine(fabric.PrintFab());
+                        Console.WriteLine("Текущая коллекция 2:");
+                        Console.WriteLine(otherFabric.PrintFab());
+                        break;
                     case 1:
                         if (methodChoice == 1)
-                            fabric.FindPremiumLinq();
+                            Console.WriteLine(fabric.FindPremiumLinq());
                         else
-                            fabric.FindPremiumUsingExtensions();
+                            Console.WriteLine(fabric.FindPremiumUsingExtensions());
                         break;
                     case 2:
                         if (methodChoice == 1)
-                        {
-                            Console.WriteLine("Текущая коллекция 1:");
-                            fabric.PrintFab();
-                            Console.WriteLine("Текущая коллекция 2:");
-                            otherFabric.PrintFab();
-                            fabric.FindExclusiveLinq(otherFabric);
-                        }
+                            Console.WriteLine(fabric.FindExclusiveLinq(otherFabric));
                         else
-                        {
-                            Console.WriteLine("Текущая коллекция 1:");
-                            fabric.PrintFab();
-                            Console.WriteLine("Текущая коллекция 2:");
-                            otherFabric.PrintFab();
-                            fabric.FindExclusiveUsingExtensions(otherFabric);
-                        }
+                            Console.WriteLine(fabric.FindExclusiveUsingExtensions(otherFabric));
                         break;
                     case 3:
                         if (methodChoice == 1)
-                            fabric.GetAverageTruckPriceLinq();
+                            Console.WriteLine(fabric.GetAverageTruckPriceLinq());
                         else
-                            fabric.GetAverageTruckPriceUsingExtensions();
+                            Console.WriteLine(fabric.GetAverageTruckPriceUsingExtensions());
                         break;
                     case 4:
                         if (methodChoice == 1)
-                            fabric.GetCodeLinq();
+                            Console.WriteLine(fabric.GetCodeLinq());
                         else
-                            fabric.GetCodeUsingExtensions();
+                            Console.WriteLine(fabric.GetCodeUsingExtensions());
                         break;
                     case 5:
                         if (methodChoice == 1)
                         {
-                            fabric.GetShowroomsLinq(showroomList);
+                            Console.WriteLine(fabric.GetShowroomsLinq(showroomList));
                             Console.WriteLine("Автосалоны:");
-                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.carClass}-класса, по продаже {s.Brand} в городе {s.City}."));
+                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.CarClass}-класса, по продаже {s.Brand} в городе {s.City}."));
                         }
                         else
                         {
-                            fabric.GetShowroomsUsingExtensions(showroomList);
+                            Console.WriteLine(fabric.GetShowroomsUsingExtensions(showroomList));
                             Console.WriteLine("Автосалоны:");
-                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.carClass}-класса, по продаже {s.Brand} в городе {s.City}."));
+                            showroomList.ForEach(s => Console.WriteLine($"Автосалон {s.CarClass}-класса, по продаже {s.Brand} в городе {s.City}."));
                         }
                         break;
                     case 6:
                         if (methodChoice == 1)
-                            fabric.GroupByBrandLinq();
+                            Console.WriteLine(fabric.GroupByBrandLinq());
                         else
-                            fabric.GroupByBrand();
+                            Console.WriteLine(fabric.GroupByBrand());
                         break;
                 }
             }
@@ -313,13 +274,6 @@ namespace Lab12_p1
                     break;
                 }
 
-                if (choice == 0)
-                {
-                    Console.WriteLine("Текущая коллекция:");
-                    PrintCollection(myHashTable);
-                    continue;
-                }
-
                 Console.WriteLine("Выберите метод:");
                 Console.WriteLine("1. LINQ");
                 Console.WriteLine("2. Методы расширения");
@@ -327,29 +281,33 @@ namespace Lab12_p1
 
                 switch (choice)
                 {
+                    case 0:
+                        Console.WriteLine("Текущая коллекция:");
+                        PrintCollection(myHashTable);
+                        break;
                     case 1:
                         if (methodChoice == 1)
-                            GetKeyTruckLinq(myHashTable);
+                            Console.WriteLine(GetKeyTruckLinq(myHashTable));
                         else
-                            GetKeyTruckUsingExtensions(myHashTable);
+                            Console.WriteLine(GetKeyTruckUsingExtensions(myHashTable));
                         break;
                     case 2:
                         if (methodChoice == 1)
-                            GetAvgPriceLinq(myHashTable);
+                            Console.WriteLine(GetAvgPriceLinq(myHashTable));
                         else
-                            GetAvgPriceUsingExtensions(myHashTable);
+                            Console.WriteLine(GetAvgPriceUsingExtensions(myHashTable));
                         break;
                     case 3:
                         if (methodChoice == 1)
-                            GetCountFWDLinq(myHashTable);
+                            Console.WriteLine(GetCountFWDLinq(myHashTable));
                         else
-                            GetCountFWDUsingExtensions(myHashTable);
+                            Console.WriteLine(GetCountFWDUsingExtensions(myHashTable));
                         break;
                     case 4:
                         if (methodChoice == 1)
-                            GroupByBrandLinq(myHashTable);
+                            Console.WriteLine(GroupByBrandLinq(myHashTable));
                         else
-                            GroupByBrandUsingMethods(myHashTable);
+                            Console.WriteLine(GroupByBrandUsingMethods(myHashTable));
                         break;
                 }
             }

@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using Lab10FINLIB;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Lab10FINLIB;
 
 namespace Lab14_
 {
@@ -22,7 +22,7 @@ namespace Lab14_
                 case 2:
                     return new Truck();
                 default:
-                    return new Car(); 
+                    return new Car();
             }
         }
 
@@ -31,7 +31,7 @@ namespace Lab14_
             fabric = new Queue<List<Car>>(length);
             for (int i = 0; i < length; i++)
             {
-                int worklen = 5; // или rnd.Next(5, 10)
+                int worklen = rnd.Next(5, 10); // случайное число от 5 до 9
                 List<Car> workshop = new List<Car>(worklen);
                 for (int j = 0; j < worklen; j++)
                 {
@@ -39,252 +39,217 @@ namespace Lab14_
                     added.RandomInit();
                     workshop.Add(added);
                 }
-                this.fabric.Enqueue(workshop);
+                fabric.Enqueue(workshop);
             }
         }
 
-
-        public void PrintFab()
+        public string PrintFab()
         {
-            Console.WriteLine("Все машины завода:");
+            var result = "Все машины завода:\n";
             foreach (var workshop in fabric)
             {
                 foreach (Car car in workshop)
                 {
-                    Console.WriteLine(car.ToString());
+                    result += car.ToString() + "\n";
                 }
             }
+            return result;
         }
 
-         //ВЫБОРКА WHERE
-        //LINQ
-        public void FindPremiumLinq()
+        public string FindPremiumLinq()
         {
-            string[] premium = new string[] {"Bugatti", "Lamborgini"};
-            var resPremium = from workshop in fabric
-                             from car in workshop
-                             where premium.Contains(car.Brand)
-                             select new { Brand = car.Brand, Year = car.Year, Cost = car.Cost };
-            foreach (var item in resPremium)
-            {
-                Console.WriteLine($"Премиальное авто {item.Brand} {item.Year} за {item.Cost} рублей");
-            }
-        }
-        //Extension
-        public void FindPremiumUsingExtensions()
-        {
-            string[] premium = new string[] { "Bugatti", "Lamborgini" };
+            string[] premium = { "Bugatti", "Lamborgini" };
             var resPremium = fabric
                 .SelectMany(workshop => workshop)
                 .Where(car => premium.Contains(car.Brand))
-                .Select(car => new { Brand = car.Brand, Year = car.Year, Cost = car.Cost });
+                .Select(car => $"Премиальное авто {car.Brand} {car.Year} за {car.Cost} рублей");
 
-            foreach (var item in resPremium)
-            {
-                Console.WriteLine($"Премиальное авто {item.Brand} {item.Year} за {item.Cost} рублей");
-            }
+            return string.Join("\n", resPremium);
         }
 
-        //ОПЕРАЦИЯ ИСКЛЮЧЕНИЯ
-        public void FindExclusiveUsingExtensions(CarFabric otherFact)
+        public string FindPremiumUsingExtensions()
+        {
+            string[] premium = { "Bugatti", "Lamborgini" };
+            var resPremium = fabric
+                .SelectMany(workshop => workshop)
+                .Where(car => premium.Contains(car.Brand))
+                .Select(car => $"Премиальное авто {car.Brand} {car.Year} за {car.Cost} рублей");
+
+            return string.Join("\n", resPremium);
+        }
+
+        public string FindExclusiveUsingExtensions(CarFabric otherFact)
         {
             var firstCars = fabric.SelectMany(workshop => workshop);
             var otherCars = otherFact.fabric.SelectMany(workshop => workshop);
 
             var exclusiveCars = firstCars.Except(otherCars);
- 
-            foreach (var car in exclusiveCars)
-            {
-                Console.WriteLine($"Эксклюзивный авто {car.Brand} {car.Year} за {car.Cost} рублей");
-            }
+
+            var result = exclusiveCars.Select(car => $"Эксклюзивный авто {car.Brand} {car.Year} за {car.Cost} рублей");
+
+            return string.Join("\n", result);
         }
 
-        public void FindExclusiveLinq(CarFabric otherFact)
+        public string FindExclusiveLinq(CarFabric otherFact)
         {
             var exclusiveCars = from workshop in fabric
                                 from car in workshop
                                 where !(from otherWorkshop in otherFact.fabric
                                         from otherCar in otherWorkshop
                                         select otherCar).Contains(car)
-                                select car;
+                                select $"Эксклюзивный авто {car.Brand} {car.Year} за {car.Cost} рублей";
 
-            foreach (var car in exclusiveCars)
-            {
-                Console.WriteLine($"Эксклюзивный авто {car.Brand} {car.Year} за {car.Cost} рублей");
-            }
+            return string.Join("\n", exclusiveCars);
         }
 
-
-        //СРЕДНЯЯ ЦЕНА ГРУЗОВИКОВ, МЕТОД AVERAGE
-        public void GetAverageTruckPriceUsingExtensions()
+        public string GetAverageTruckPriceUsingExtensions()
         {
-            // Используем LINQ для вычисления средней цены для объектов типа Truck
             var averagePrice = fabric
                 .SelectMany(workshop => workshop)
-                .Where(car => car is Truck) // Фильтруем объекты, чтобы остались только Truck
-                .Select(truck => ((Truck)truck).Cost) // Приводим к типу Truck и выбираем цену
-                .Average(); // Вычисляем среднее значение цен
+                .Where(car => car is Truck)
+                .Average(car => car.Cost);
 
-            Console.WriteLine($"Cредняя цена грузовика - {averagePrice}");
+            return $"Cредняя цена грузовика - {averagePrice}";
         }
 
-        // Метод GetAverageTruckPrice, использующий LINQ-запрос
-        public void GetAverageTruckPriceLinq()
+        public string GetAverageTruckPriceLinq()
         {
-            var averagePrice = (from workshop in fabric
-                                from car in workshop
-                                where car is Truck
-                                select ((Truck)car).Cost).Average();
+            var averagePrice = fabric
+                .SelectMany(workshop => workshop)
+                .Where(car => car is Truck)
+                .Average(car => car.Cost);
 
-            Console.WriteLine($"Cредняя цена грузовика - {averagePrice}");
+            return $"Cредняя цена грузовика - {averagePrice}";
         }
 
-
-        //АРТИКУЛ МАШИНЫ, ИСПОЛЬЗУЯ LET
-        public void GetCodeLinq()
+        public string GetCodeLinq()
         {
-            string[] lux = new string[] { "Bugatti", "Lamborgini", "Porche", "Audi"};
+            string[] lux = { "Bugatti", "Lamborgini", "Porche", "Audi" };
             var carCode = from workshop in fabric
-                       from car in workshop
-                       let code = car.Brand.Substring(0, 3).ToUpper() + $"{car.Year}" + car.Color.Substring(0, 4).ToUpper()
-                       select new { Brand = car.Brand, Year = car.Year, Cost = car.Cost, Code=code};
-            foreach(var car in carCode)
-            {
-                Console.WriteLine($"{car.Brand} {car.Year} c кодом {car.Code}");
-            }
+                          from car in workshop
+                          let code = $"{car.Brand.Substring(0, 3).ToUpper()}{car.Year}{car.Color.Substring(0, 4).ToUpper()}"
+                          select $"{car.Brand} {car.Year} c кодом {code}";
+
+            return string.Join("\n", carCode);
         }
 
-        // Метод GetCode, использующий методы расширения коллекции, нет let
-        public void GetCodeUsingExtensions()
+        public string GetCodeUsingExtensions()
         {
-            string[] lux = new string[] { "Bugatti", "Lamborgini", "Porche", "Audi" };
+            string[] lux = { "Bugatti", "Lamborgini", "Porche", "Audi" };
             var carCode = fabric
                 .SelectMany(workshop => workshop)
-                .Select(car => new
-                {
-                    Brand = car.Brand,
-                    Year = car.Year,
-                    Cost = car.Cost,
-                    Code = car.Brand.Substring(0, 3).ToUpper() + $"{car.Year}" + car.Color.Substring(0, 4).ToUpper()
-                });
+                .Select(car => $"{car.Brand} {car.Year} c кодом {car.Brand.Substring(0, 3).ToUpper()}{car.Year}{car.Color.Substring(0, 4).ToUpper()}");
 
-            foreach (var car in carCode)
-            {
-                Console.WriteLine($"{car.Brand} {car.Year} c кодом {car.Code}");
-            }
+            return string.Join("\n", carCode);
         }
 
-        //НАЙТИ САЛОНЫ, JOIN
-        public void GetShowroomsLinq(List<Showroom> company)
+        public string GetShowroomsLinq(List<Showroom> company)
         {
             var res = from workshop in fabric
                       from car in workshop
                       join showroom in company
                       on car.Brand equals showroom.Brand
-                      select new { Brand = car.Brand, Color = car.Color, Year = car.Year, Cost = car.Cost, City = showroom.City, CarClass = showroom.carClass};
-            foreach(var item in res)
-            {
-                Console.WriteLine($"Вы можете приобрести автомобиль {item.Color + " " + item.Brand} {item.Year} в автосалоне {item.CarClass}-класса в городе {item.City}");
-            }
+                      select $"Вы можете приобрести автомобиль {car.Color} {car.Brand} {car.Year} в автосалоне {showroom.CarClass}-класса в городе {showroom.City}";
+
+            return string.Join("\n", res);
         }
 
-        // Метод GetShowrooms, использующий методы расширения коллекции
-        public void GetShowroomsUsingExtensions(List<Showroom> company)
+        public string GetShowroomsUsingExtensions(List<Showroom> company)
         {
             var res = fabric
                 .SelectMany(workshop => workshop)
-                .Join(company, car => car.Brand, showroom => showroom.Brand, (car, showroom) => new
-                {
-                    Brand = car.Brand,
-                    Color = car.Color,
-                    Year = car.Year,
-                    Cost = car.Cost,
-                    City = showroom.City,
-                    CarClass = showroom.carClass
-                });
+                .Join(company,
+                      car => car.Brand,
+                      showroom => showroom.Brand,
+                      (car, showroom) => $"Вы можете приобрести автомобиль {car.Color} {car.Brand} {car.Year} в автосалоне {showroom.CarClass}-класса в городе {showroom.City}");
 
-            foreach (var item in res)
-            {
-                Console.WriteLine($"Вы можете приобрести автомобиль {item.Color + " " + item.Brand} {item.Year} в автосалоне {item.CarClass}-класса в городе {item.City}");
-            }
+            return string.Join("\n", res);
         }
 
-        //ГРУППИРОВКА ПО ГРУППАМ
-        public void GroupByBrand()
+        public string GroupByBrand()
         {
             var groupedCars = fabric
                 .SelectMany(workshop => workshop)
                 .GroupBy(car => car.Brand);
 
-
+            var result = "";
             foreach (var group in groupedCars)
             {
-                Console.WriteLine($"Марка: {group.Key}");
-                Console.WriteLine(group.Count());
+                result += $"Марка: {group.Key}\n";
+                result += $"{group.Count()}\n";
                 foreach (var car in group)
                 {
-                    Console.WriteLine($"\t{car.Brand} {car.Year} за {car.Cost} рублей");
+                    result += $"\t{car.Brand} {car.Year} за {car.Cost} рублей\n";
                 }
             }
+            return result;
         }
 
-        // Метод GroupByBrand, использующий LINQ-запрос
-        public void GroupByBrandLinq()
+        public string GroupByBrandLinq()
         {
             var groupedCars = from workshop in fabric
                               from car in workshop
-                              group car by car.Brand;
+                              group car by car.Brand into g
+                              select new
+                              {
+                                  Brand = g.Key,
+                                  Cars = g.Select(car => $"{car.Brand} {car.Year} за {car.Cost} рублей")
+                              };
 
+            var result = "";
             foreach (var group in groupedCars)
             {
-                Console.WriteLine($"Марка: {group.Key}");
-                foreach (var car in group)
+                result += $"Марка: {group.Brand}\n";
+                foreach (var car in group.Cars)
                 {
-                    Console.WriteLine($"\t{car.Brand} {car.Year} за {car.Cost} рублей");
+                    result += $"\t{car}\n";
                 }
             }
+            return result;
         }
-
-
     }
 
-
-    //КЛАСС-САЛОН
     public class Showroom
     {
         public string City;
         public string Brand;
-        public string carClass;
+        public string CarClass;
 
         Random rnd = new Random();
+
         public Showroom()
         {
             string[] brands = { "Volkswagen", "Skoda", "Audi", "Porshe", "Bugatti", "Lamborgini" };
-            string[] cities = new string[] { "Москва", "Санкт-Петербург", "Пермь", "Екатеринбург" };
+            string[] cities = { "Москва", "Санкт-Петербург", "Пермь", "Екатеринбург" };
+
             City = cities[rnd.Next(cities.Length)];
             Brand = brands[rnd.Next(brands.Length)];
-            carClass = carClasses[Brand];
+            CarClass = GetCarClass(Brand);
         }
 
         public Showroom(string brand)
         {
             string[] brands = { "Volkswagen", "Skoda", "Audi", "Porshe", "Bugatti", "Lamborgini" };
-            string[] cities = new string[] { "Москва", "Санкт-Петербург", "Пермь", "Екатеринбург" };
+            string[] cities = { "Москва", "Санкт-Петербург", "Пермь", "Екатеринбург" };
+
             City = cities[rnd.Next(cities.Length)];
             Brand = brand;
-            carClass = carClasses[Brand];
+            CarClass = GetCarClass(brand);
         }
 
-        private Dictionary<string, string> carClasses = new Dictionary<string, string>()
+        private string GetCarClass(string brand)
         {
-            ["Volkswagen"] = "Эконом",
-            ["Skoda"] = "Эконом",
-            ["Audi"] = "Бизнес",
-            ["Porshe"] = "Бизнес",
-            ["Bugatti"] = "Премиум",
-            ["Lamborgini"] = "Премиум",
+            var carClasses = new Dictionary<string, string>()
+            {
+                { "Volkswagen", "Эконом" },
+                { "Skoda", "Эконом" },
+                { "Audi", "Бизнес" },
+                { "Porshe", "Бизнес" },
+                { "Bugatti", "Премиум" },
+                { "Lamborgini", "Премиум" }
+            };
 
-        };
-
+            return carClasses.ContainsKey(brand) ? carClasses[brand] : "Неизвестный класс";
+        }
     }
 }
